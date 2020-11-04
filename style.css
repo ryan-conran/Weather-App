@@ -1,0 +1,20 @@
+.page-title {
+    text-align: center;
+}
+
+.cities-select {
+    float: left;
+    max-width: 20%;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.city-focus {
+    margin left: 40px;
+    padding left: 40px;
+    height: 150%;
+}
+
+.main-weather {
+    height: 300px;
+}
