@@ -18,3 +18,7 @@
 .main-weather {
     height: 300px;
 }
+
+.five-days {
+    float: right;
+}
