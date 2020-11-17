@@ -119,14 +119,14 @@ $("#cityButton").click(function (event) {
         let repTemp = (response.main.temp - 273.15) * 1.80 + 32;
         repTemp = repTemp.toFixed();
         let mainIcon = response.weather[0].icon
-        let iconUrl = "http://openweathermap.org/img/wn/" + mainIcon + "@2x.png"
+        let iconUrl = "https://openweathermap.org/img/wn/" + mainIcon + "@2x.png"
         let repHum = response.main.humidity;
         let repWind = response.wind.speed;
         // This is able to be refrenced globally
         let uvLong = response.coord.lon;
         // This is able to be refrenced globally
         let uvLat = response.coord.lat;
-        let uvIndexURL = "http://api.openweathermap.org/data/2.5/uvi?lat=" + uvLat + "&lon=" + uvLong + "&appid=" + apiKey
+        let uvIndexURL = "https://api.openweathermap.org/data/2.5/uvi?lat=" + uvLat + "&lon=" + uvLong + "&appid=" + apiKey
 
         $.ajax({
             url: uvIndexURL,
