@@ -22,3 +22,7 @@
 .five-days {
     float: right;
 }
+
+.city-list li {
+    cursor: pointer;
+  }

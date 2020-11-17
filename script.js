@@ -1,5 +1,19 @@
-
-
+function buildTemp(tempInfo) {
+    let repUVIndexEl = '<p>UV Index: ' + tempInfo.repUV + '</p>'
+    let currentDateEl = '<h3>' + tempInfo.city + ' ' + tempInfo.focusDate + '</h3>';
+    let mainIconEl = '<img src =' + tempInfo.iconUrl + ' />';
+    let repTempEl = '<p>Temp: ' + tempInfo.repTemp + '&#8457;</p>';
+    let repHumEl = '<p>Humidity: ' + tempInfo.repHum + '%</p>';
+    let repWindEl = '<p>Wind: ' + tempInfo.repWind + ' MPH</p>';
+    $("#mainWeather").empty();
+    $("#mainWeather").append(currentDateEl);
+    $("#mainWeather").append(mainIconEl);
+    $("#mainWeather").append(repTempEl);
+    $("#mainWeather").append(repHumEl);
+    $("#mainWeather").append(repWindEl);
+    $("#mainWeather").append(repUVIndexEl);
+  }
+  // is the "response" in the parentheses related to the call on line 158?
   function build5Day(response) {
     console.log(response);
     let fiveDayArray = response.list;
@@ -8,6 +22,7 @@
     let day3 = fiveDayArray[22];
     let day4 = fiveDayArray[30];
     let day5 = fiveDayArray[38];
+
 
 
 
@@ -52,17 +67,20 @@
     </div>
 `);
 
+    // Would I need to generate my current weather card via Jquery in order to save to local storage like the above 5 day above?
+
 }
 
 let apiKey = "51f413c7f43e62a941348d7c35e44a31";
-let cityArray = [];
-$(document).on("click", ".list-Btn", function (event) {
 
-});
 const arr = JSON.parse(localStorage.getItem("history"));
+$(".five-days").empty();
+// Could I get a reminder on the meaning of this if statment?
 if (arr) {
     const cityData = JSON.parse(localStorage.getItem(arr[0]));
+    
     build5Day(cityData);
+    buildTemp(cityData.tempInfo);
 
     for (i = 0; i < arr.length; i++) {
         let ulItem = $("<li onclick='onCitySelect(this)'>").addClass("list-group-item list-Btn").text(arr[i]);
@@ -70,11 +88,13 @@ if (arr) {
 
     }
 }
-
+// I need a reminder of what this whole function does.  
 function onCitySelect(element) {
     const city = element.innerText;
     $(".five-days").empty();
-    build5Day(JSON.parse(localStorage.getItem(city)));
+    const cityTemp = JSON.parse(localStorage.getItem(city));
+    build5Day(cityTemp);
+    buildTemp(cityTemp.tempInfo);
 }
 
 
@@ -92,38 +112,50 @@ $("#cityButton").click(function (event) {
     $.ajax({
         url: weatherURL,
         method: "GET"
+    // How are variables in the build5Day able to be referenced globally?  When I try to create a similar function with the below variables, hum, wind, long and lat are greyed out, but temp and Icon are not.  Why is this?
     }).then(function (response) {
         console.log(response);
+        // This is able to be refrenced globally
         let repTemp = (response.main.temp - 273.15) * 1.80 + 32;
         repTemp = repTemp.toFixed();
         let mainIcon = response.weather[0].icon
         let iconUrl = "http://openweathermap.org/img/wn/" + mainIcon + "@2x.png"
         let repHum = response.main.humidity;
         let repWind = response.wind.speed;
+        // This is able to be refrenced globally
         let uvLong = response.coord.lon;
+        // This is able to be refrenced globally
         let uvLat = response.coord.lat;
         let uvIndexURL = "http://api.openweathermap.org/data/2.5/uvi?lat=" + uvLat + "&lon=" + uvLong + "&appid=" + apiKey
+
         $.ajax({
             url: uvIndexURL,
             method: "GET"
         }).then(function (response) {
+            // Would I ned to call a "build" function for UV and date?
             console.log(response);
             let repUV = response.value;
+            // want to grab the current date, but am struggling.
             let focusDate = response.date;
             let mainDate = new Date(focusDate);
             console.log(mainDate)
             console.log(focusDate);
-            let repUVIndexEl = '<p>UV Index: ' + repUV + '</p>'
 
-            let currentDateEl = '<h3>' + city + ' ' + focusDate + '</h3>'
 
-            $("#mainWeather").append(currentDateEl);
-            $("#mainWeather").append(mainIconEl);
-            $("#mainWeather").append(repTempEl);
-            $("#mainWeather").append(repHumEl);
-            $("#mainWeather").append(repWindEl);
-            $("#mainWeather").append(repUVIndexEl);
+            const tempInfo = {
+                iconUrl: iconUrl,
+                repUV: repUV,
+                city: city,
+                focusDate: focusDate,
+                repTemp: repTemp,
+                repHum: repHum,
+                repWind: repWind
+            };
 
+            buildTemp(tempInfo);
+            //localStorage.setItem("tempInfo", JSON.stringify(tempInfo));
+
+            // Can the information below be referenced in the global scope?
             let fiveDayURL = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&appid=" + apiKey;
             $.ajax({
                 url: fiveDayURL,
@@ -131,6 +163,7 @@ $("#cityButton").click(function (event) {
             }).then(function (response) {
                 build5Day(response);
                 const arr = JSON.parse(localStorage.getItem("history"));
+                // reminder of what this if statment is declaring.  Does it have to do with if the array is null?
                 if (!arr) {
                     localStorage.setItem("history", JSON.stringify([city]));
                 } else {
@@ -138,14 +171,11 @@ $("#cityButton").click(function (event) {
                     localStorage.setItem("history", JSON.stringify(arr));
                 }
 
+                response.tempInfo = tempInfo;
+                // what city is this refrencing? line 104 or line 96?
                 localStorage.setItem(city, JSON.stringify(response));
             });
         });
-
-        let mainIconEl = '<img src =' + iconUrl + ' />';
-        let repTempEl = '<p>Temp: ' + repTemp + '&#8457;</p>';
-        let repHumEl = '<p>Humidity: ' + repHum + '%</p>';
-        let repWindEl = '<p>Wind: ' + repWind + ' MPH</p>';
 
     });
     // let mainFocusEl = '<h3>'+city+' '+focusDate+'<img src =http://openweathermap.org/img/wn/'+10d+'@2x.png '
