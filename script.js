@@ -1,6 +1,6 @@
 function buildTemp(tempInfo) {
     let repUVIndexEl = '<p>UV Index: ' + tempInfo.repUV + '</p>'
-    let currentDateEl = '<h3>' + tempInfo.city + ' ' + tempInfo.focusDate + '</h3>';
+    let currentDateEl = '<h3>' + tempInfo.city + ' ' + tempInfo.focusDate.substr(0, 10) + '</h3>';
     let mainIconEl = '<img src =' + tempInfo.iconUrl + ' />';
     let repTempEl = '<p>Temp: ' + tempInfo.repTemp + '&#8457;</p>';
     let repHumEl = '<p>Humidity: ' + tempInfo.repHum + '%</p>';
@@ -13,9 +13,8 @@ function buildTemp(tempInfo) {
     $("#mainWeather").append(repWindEl);
     $("#mainWeather").append(repUVIndexEl);
   }
-  // is the "response" in the parentheses related to the call on line 158?
+
   function build5Day(response) {
-    console.log(response);
     let fiveDayArray = response.list;
     let day1 = fiveDayArray[6];
     let day2 = fiveDayArray[14];
@@ -67,7 +66,6 @@ function buildTemp(tempInfo) {
     </div>
 `);
 
-    // Would I need to generate my current weather card via Jquery in order to save to local storage like the above 5 day above?
 
 }
 
@@ -75,7 +73,7 @@ let apiKey = "51f413c7f43e62a941348d7c35e44a31";
 
 const arr = JSON.parse(localStorage.getItem("history"));
 $(".five-days").empty();
-// Could I get a reminder on the meaning of this if statment?
+
 if (arr) {
     const cityData = JSON.parse(localStorage.getItem(arr[0]));
     
@@ -88,7 +86,7 @@ if (arr) {
 
     }
 }
-// I need a reminder of what this whole function does.  
+ 
 function onCitySelect(element) {
     const city = element.innerText;
     $(".five-days").empty();
@@ -112,19 +110,15 @@ $("#cityButton").click(function (event) {
     $.ajax({
         url: weatherURL,
         method: "GET"
-    // How are variables in the build5Day able to be referenced globally?  When I try to create a similar function with the below variables, hum, wind, long and lat are greyed out, but temp and Icon are not.  Why is this?
+    
     }).then(function (response) {
-        console.log(response);
-        // This is able to be refrenced globally
         let repTemp = (response.main.temp - 273.15) * 1.80 + 32;
         repTemp = repTemp.toFixed();
         let mainIcon = response.weather[0].icon
         let iconUrl = "https://openweathermap.org/img/wn/" + mainIcon + "@2x.png"
         let repHum = response.main.humidity;
         let repWind = response.wind.speed;
-        // This is able to be refrenced globally
         let uvLong = response.coord.lon;
-        // This is able to be refrenced globally
         let uvLat = response.coord.lat;
         let uvIndexURL = "https://api.openweathermap.org/data/2.5/uvi?lat=" + uvLat + "&lon=" + uvLong + "&appid=" + apiKey
 
@@ -132,14 +126,10 @@ $("#cityButton").click(function (event) {
             url: uvIndexURL,
             method: "GET"
         }).then(function (response) {
-            // Would I ned to call a "build" function for UV and date?
-            console.log(response);
             let repUV = response.value;
-            // want to grab the current date, but am struggling.
-            let focusDate = response.date;
-            let mainDate = new Date(focusDate);
-            console.log(mainDate)
-            console.log(focusDate);
+            let focusDate = response.date_iso;
+
+
 
 
             const tempInfo = {
@@ -153,9 +143,7 @@ $("#cityButton").click(function (event) {
             };
 
             buildTemp(tempInfo);
-            //localStorage.setItem("tempInfo", JSON.stringify(tempInfo));
 
-            // Can the information below be referenced in the global scope?
             let fiveDayURL = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&appid=" + apiKey;
             $.ajax({
                 url: fiveDayURL,
@@ -163,7 +151,6 @@ $("#cityButton").click(function (event) {
             }).then(function (response) {
                 build5Day(response);
                 const arr = JSON.parse(localStorage.getItem("history"));
-                // reminder of what this if statment is declaring.  Does it have to do with if the array is null?
                 if (!arr) {
                     localStorage.setItem("history", JSON.stringify([city]));
                 } else {
@@ -178,23 +165,6 @@ $("#cityButton").click(function (event) {
         });
 
     });
-    // let mainFocusEl = '<h3>'+city+' '+focusDate+'<img src =http://openweathermap.org/img/wn/'+10d+'@2x.png '
-    // let currentDateEl = '<h3>'+
-
-
-
-
-
 
 
 });
-
-
-
-
-      // function buildQueryURL() {
-      //     let apiKey = "51f413c7f43e62a941348d7c35e44a31"
-
-      //     $.getJSON(weatherURL + apiKey);
-
-      // API call: api.openweathermap.org/data/2.5/weather?q={city name}&appid={API key}
